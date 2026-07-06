@@ -19,7 +19,6 @@ client.once('clientReady', () => {
     console.log(`Bot berhasil online sebagai ${client.user.tag}!`);
 });
 
-// 1. FITUR AUTOCOMPLETE
 client.on('interactionCreate', async interaction => {
     if (!interaction.isAutocomplete()) return;
     if (interaction.commandName === 'play') {
@@ -40,30 +39,25 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// 2. MENANGANI INTERAKSI TOMBOL & SLASH COMMANDS
 client.on('interactionCreate', async interaction => {
     
-    // --- JIKA USER MENGKLIK TOMBOL ---
     if (interaction.isButton()) {
         const queue = player.nodes.get(interaction.guildId);
         if (!queue || !queue.isPlaying()) {
             return interaction.reply({ content: 'Tidak ada musik yang sedang diputar!', ephemeral: true });
         }
 
-        // Tombol Pause / Resume
         if (interaction.customId === 'btn_pause') {
             const isPaused = queue.node.isPaused();
             queue.node.setPaused(!isPaused);
             return interaction.reply({ content: isPaused ? 'Musik dilanjutkan.' : 'Musik dijeda.', ephemeral: true });
         }
         
-        // Tombol Skip (Next)
         if (interaction.customId === 'btn_skip') {
             queue.node.skip();
             return interaction.reply({ content: 'Lagu berhasil dilewati.', ephemeral: true });
         }
 
-        // Tombol Loop (Berputar otomatis: Off -> Track -> Queue -> Off)
         if (interaction.customId === 'btn_loop') {
             const currentMode = queue.repeatMode; 
             const nextMode = (currentMode + 1) % 3; 
@@ -71,16 +65,14 @@ client.on('interactionCreate', async interaction => {
 
             const modeNames = ['Matikan Loop', 'Mengulang Lagu Ini', 'Mengulang Antrean'];
             return interaction.reply({ content: `Mode loop diubah menjadi: ${modeNames[nextMode]}`, ephemeral: true });
-        }
-
-        // Tombol Stop
+        }    
+        
         if (interaction.customId === 'btn_stop') {
             queue.delete();
             return interaction.reply({ content: 'Bot dihentikan dan keluar.', ephemeral: true });
         }
     }
 
-    // --- JIKA USER MENGETIK COMMAND ---
     if (!interaction.isChatInputCommand()) return;
 
     if (!interaction.member.voice.channel) {
@@ -89,7 +81,6 @@ client.on('interactionCreate', async interaction => {
 
     const command = interaction.commandName;
 
-    // --- FITUR PLAY DENGAN 4 TOMBOL ---
     if (command === 'play') {
         await interaction.deferReply();
         const query = interaction.options.getString('lagu');
@@ -99,7 +90,6 @@ client.on('interactionCreate', async interaction => {
                 nodeOptions: { metadata: interaction.channel }
             });
 
-            // Pembuatan 4 Tombol Tanpa Emoji
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setCustomId('btn_pause').setLabel('Pause / Resume').setStyle(ButtonStyle.Primary),
                 new ButtonBuilder().setCustomId('btn_skip').setLabel('Skip').setStyle(ButtonStyle.Secondary),
@@ -124,7 +114,6 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    // --- COMMAND KETIK MANUAL ---
     const queue = player.nodes.get(interaction.guildId);
     if (!queue || !queue.isPlaying()) {
         if (command !== 'play') return interaction.reply({ content: 'Tidak ada musik yang sedang diputar di server ini.', ephemeral: true });
@@ -142,7 +131,6 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// Jaring Pengaman Error
 client.on('error', error => console.error('Discord Client Error:', error));
 process.on('unhandledRejection', error => console.error('Unhandled Promise Rejection:', error));
 process.on('uncaughtException', error => console.error('Uncaught Exception:', error));
