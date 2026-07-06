@@ -86,7 +86,7 @@ client.on('interactionCreate', async interaction => {
             );
 
             const embed = new EmbedBuilder()
-                .setTitle('🎶 Berhasil Menambahkan Lagu')
+                .setTitle(' Berhasil Menambahkan Lagu')
                 .setDescription(`[${track.title}](${track.url})`)
                 .setThumbnail(track.thumbnail)
                 .addFields(
